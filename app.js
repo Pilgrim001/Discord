@@ -33,7 +33,7 @@ app.get('/',(req,res)=>{
   res.status(200).json({message:"Done"})
 })
 
-const botName = 'ChatCord Bot';
+
 
 // Run when client connects
 io.on('connection', socket => {
@@ -42,16 +42,8 @@ io.on('connection', socket => {
 
     socket.join(user.room);
 
-    // Welcome current user
-    socket.emit('message', formatMessage(botName, 'Welcome to ChatCord!'));
+ 
 
-    // Broadcast when a user connects
-    socket.broadcast
-      .to(user.room)
-      .emit(
-        'message',
-        formatMessage(botName, `${user.username} has joined the chat`)
-      );
 
     // Send users and room info
     io.to(user.room).emit('roomUsers', {
@@ -74,7 +66,7 @@ io.on('connection', socket => {
     if (user) {
       io.to(user.room).emit(
         'message',
-        formatMessage(botName, `${user.username} has left the chat`)
+        formatMessage('', `${user.username} has left the class`)
       );
 
       // Send users and room info
