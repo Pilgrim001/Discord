@@ -37,8 +37,8 @@ app.get('/', (req, res) => {
 
 // Run when client connects
 io.on('connection', socket => {
-  socket.on('joinRoom', ({ username, room }) => {
-    const user = userJoin(socket.id, username, room);
+  socket.on('joinRoom', ({ username, room, role }) => {
+    const user = userJoin(socket.id, username, room, role);
 
     socket.join(user.room);
 
@@ -63,7 +63,7 @@ io.on('connection', socket => {
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
 
-    io.to(user.room).emit('message', formatMessage(user.username, msg));
+    io.to(user.room).emit('message', formatMessage(user.username, msg,user.role));
   });
 
   // Runs when client disconnects
