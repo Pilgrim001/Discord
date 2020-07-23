@@ -29,8 +29,8 @@ const {
 } = require('./utils/users');
 
 
-app.get('/',(req,res)=>{
-  res.status(200).json({message:"Done"})
+app.get('/', (req, res) => {
+  res.status(200).json({ message: "Done" })
 })
 
 
@@ -42,9 +42,15 @@ io.on('connection', socket => {
 
     socket.join(user.room);
 
- 
-
-
+    // Welcome current user
+    socket.emit('message', formatMessage('YodaBot', 'Welcome to YodaBox!'));
+    // Broadcast when a user connects
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        'message',
+        formatMessage('YodaBot', `${user.username} has joined the chat`)
+      );
     // Send users and room info
     io.to(user.room).emit('roomUsers', {
       room: user.room,
@@ -52,6 +58,7 @@ io.on('connection', socket => {
     });
   });
 
+  // Listen for chatMessage
   // Listen for chatMessage
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
