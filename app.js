@@ -19,7 +19,9 @@ const app = require('express')();
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const connect = require("./utils/dbconnection");
+const { connect } = require('mongoose')
+const { DB, PORT } = require('./config')
+const { success, error } = require('consola')
 const formatMessage = require('./utils/messages');
 const Chat = require('./models/message')
 const {
@@ -86,11 +88,34 @@ io.on('connection', socket => {
   });
 });
 
-if (module === require.main) {
-  const PORT = process.env.PORT || 8080;
-  server.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
-    console.log('Press Ctrl+C to quit.');
-  });
+const startSocket = async () => {
+  
+  try {
+    if (module === require.main) {
+      await connect(DB, {
+        useFindAndModify: true,
+        useUnifiedTopology: true,
+        useNewUrlParser: true
+      });
+      success({
+        message: `Successfully connected with the Database \n${DB}`,
+        badge: true
+      });
+
+      const PORT = process.env.PORT || 8080;
+      server.listen(PORT, () => {
+        console.log(`App listening on port ${PORT}`);
+        console.log('Press Ctrl+C to quit.');
+      });
+    }
+  } catch (err) {
+     error({
+      message: `Unable to connect with Database \n${err}`,
+      badge: true
+    });
+    startSocket();
+  }
+ 
 }
+startSocket();
 // [END appengine_websockets_app]
