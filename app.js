@@ -61,11 +61,11 @@ io.on('connection', socket => {
 
     io.to(user.room).emit('message', formatMessage(user.username, msg, user.role));
     // Broadcast when a user connects
-    connect.then(db => {
+    connect.then(async db => {
       console.log("connected correctly to the server");
 
       let chatMessage = new Chat({ username: user.username, text: user.text, role: user.role, time: moment().format('MMMM Do YYYY, h:mm:ss a') });
-      chatMessage.save();
+       await chatMessage.save();
     });
   });
 
