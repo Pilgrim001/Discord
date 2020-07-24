@@ -23,6 +23,8 @@ const { connect } = require('mongoose')
 const { DB, PORT } = require('./config')
 const { success, error } = require('consola')
 const formatMessage = require('./utils/messages');
+const moment = require('moment');
+
 const Chat = require('./models/message')
 const {
   userJoin,
@@ -61,12 +63,10 @@ io.on('connection', socket => {
 
     io.to(user.room).emit('message', formatMessage(user.username, msg, user.role));
     // Broadcast when a user connects
-    connect.then(async db => {
-      console.log("connected correctly to the server");
-
-      let chatMessage = new Chat({ username: user.username, text: user.text, role: user.role, time: moment().format('MMMM Do YYYY, h:mm:ss a') });
-       await chatMessage.save();
-    });
+  
+      let chatMessage = new Chat({ username: user.username, text: msg,room:user.room, role: user.role, time: `${moment().format('MMMM Do YYYY, h:mm:ss a')}` });
+     chatMessage.save();
+    
   });
 
   // Runs when client disconnects

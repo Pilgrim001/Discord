@@ -12,6 +12,10 @@ const chatSchema = new Schema({
         type:String,
         required:true
     },
+    room:{
+        type:String,
+        required:true
+    },
     time:{
         type:String,
         required:true
