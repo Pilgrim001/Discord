@@ -19,8 +19,9 @@ const app = require('express')();
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-
+const connect = require("./utils/dbconnection");
 const formatMessage = require('./utils/messages');
+const Chat = require('./models/message')
 const {
   userJoin,
   getCurrentUser,
@@ -42,15 +43,8 @@ io.on('connection', socket => {
 
     socket.join(user.room);
 
-    // Welcome current user
-    socket.emit('message', formatMessage('YodaBot', 'Welcome to YodaBox!'));
-    // Broadcast when a user connects
-    socket.broadcast
-      .to(user.room)
-      .emit(
-        'message',
-        formatMessage('YodaBot', `${user.username} has joined the chat`)
-      );
+
+
     // Send users and room info
     io.to(user.room).emit('roomUsers', {
       room: user.room,
@@ -63,7 +57,14 @@ io.on('connection', socket => {
   socket.on('chatMessage', msg => {
     const user = getCurrentUser(socket.id);
 
-    io.to(user.room).emit('message', formatMessage(user.username, msg,user.role));
+    io.to(user.room).emit('message', formatMessage(user.username, msg, user.role));
+    // Broadcast when a user connects
+    connect.then(db => {
+      console.log("connected correctly to the server");
+
+      let chatMessage = new Chat({ username: user.username, text: user.text, role: user.role, time: moment().format('MMMM Do YYYY, h:mm:ss a') });
+      chatMessage.save();
+    });
   });
 
   // Runs when client disconnects
